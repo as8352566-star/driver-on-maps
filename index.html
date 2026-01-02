@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>App de Mapa</title>
+
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    #map {
+      height: 100vh;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="map"></div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    // Coordenadas iniciais (Brasil)
+    const latitude = -15.793889;
+    const longitude = -47.882778;
+
+    // Criar o mapa
+    const map = L.map('map').setView([latitude, longitude], 5);
+
+    // Camada do mapa (OpenStreetMap)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    // Marcador
+    const marker = L.marker([latitude, longitude]).addTo(map);
+    marker.bindPopup('Você está aqui 🚀').openPopup();
+
+    // Clique no mapa para adicionar marcador
+    map.on('click', function (e) {
+      L.marker([e.latlng.lat, e.latlng.lng])
+        .addTo(map)
+        .bindPopup(`Latitude: ${e.latlng.lat.toFixed(5)}<br>Longitude: ${e.latlng.lng.toFixed(5)}`)
+        .openPopup();
+    });
+  </script>
+
+</body>
+</html>
