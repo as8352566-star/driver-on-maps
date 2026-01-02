@@ -3,13 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>App de Mapa</title>
+  <title>Mapa Avançado - App Web</title>
 
   <!-- Leaflet CSS -->
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
   <style>
     body {
@@ -20,9 +17,35 @@
       height: 100vh;
       width: 100%;
     }
+    .controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 1000;
+      background: white;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .controls button {
+      margin: 5px 0;
+      width: 100%;
+      padding: 8px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background: black;
+      color: white;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
+
+  <div class="controls">
+    <button onclick="getUserLocation()">📍 Minha localização</button>
+    <button onclick="clearMarkers()">🗑️ Limpar marcadores</button>
+  </div>
 
   <div id="map"></div>
 
@@ -30,30 +53,56 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
-    // Coordenadas iniciais (Brasil)
-    const latitude = -15.793889;
-    const longitude = -47.882778;
+    // Mapa inicial (Brasil)
+    const map = L.map('map').setView([-15.793889, -47.882778], 5);
 
-    // Criar o mapa
-    const map = L.map('map').setView([latitude, longitude], 5);
-
-    // Camada do mapa (OpenStreetMap)
+    // Camada do mapa
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '© OpenStreetMap'
     }).addTo(map);
 
-    // Marcador
-    const marker = L.marker([latitude, longitude]).addTo(map);
-    marker.bindPopup('Você está aqui 🚀').openPopup();
+    let markers = [];
 
-    // Clique no mapa para adicionar marcador
-    map.on('click', function (e) {
-      L.marker([e.latlng.lat, e.latlng.lng])
+    // Função: pegar localização do usuário
+    function getUserLocation() {
+      if (!navigator.geolocation) {
+        alert('Geolocalização não suportada');
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+
+          map.setView([lat, lng], 16);
+
+          const marker = L.marker([lat, lng]).addTo(map)
+            .bindPopup('📍 Sua localização atual')
+            .openPopup();
+
+          markers.push(marker);
+        },
+        () => alert('Não foi possível obter sua localização')
+      );
+    }
+
+    // Clique no mapa cria marcador
+    map.on('click', e => {
+      const marker = L.marker([e.latlng.lat, e.latlng.lng])
         .addTo(map)
-        .bindPopup(`Latitude: ${e.latlng.lat.toFixed(5)}<br>Longitude: ${e.latlng.lng.toFixed(5)}`)
+        .bindPopup(`Lat: ${e.latlng.lat.toFixed(5)}<br>Lng: ${e.latlng.lng.toFixed(5)}`)
         .openPopup();
+
+      markers.push(marker);
     });
+
+    // Limpar marcadores
+    function clearMarkers() {
+      markers.forEach(marker => map.removeLayer(marker));
+      markers = [];
+    }
   </script>
 
 </body>
